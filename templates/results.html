@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-lg-5">
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-image"></i> Uploaded Image</h4>
+            </div>
+
+            <div class="card-body text-center">
+
+                <img
+                    src="{{ url_for('static', filename='uploads/' + filename) }}"
+                    class="img-fluid rounded shadow"
+                    style="max-height:400px;">
+
+                <hr>
+
+                <p><strong>Filename:</strong> {{ filename }}</p>
+
+                <p><strong>File Size:</strong> {{ "%.2f"|format(file_size) }} KB</p>
+
+                <p><strong>Analysis Date:</strong> {{ analysis.analysis_date }}</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-7">
+
+        <div class="card mb-4">
+
+            <div class="card-header bg-success text-white">
+
+                <h4>
+                    <i class="fas fa-microscope"></i>
+                    Analysis Report
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <h5>
+                    Risk Level :
+                    <span class="badge bg-{{ analysis.risk_assessment.color_class }}">
+                        {{ analysis.risk_assessment.level }}
+                    </span>
+                </h5>
+
+                <div class="progress my-3" style="height:25px;">
+
+                    <div
+                        class="progress-bar bg-{{ analysis.risk_assessment.color_class }}"
+                        role="progressbar"
+                        style="width: {{ (analysis.risk_assessment.score/analysis.risk_assessment.max_score)*100 }}%;">
+
+                        {{ analysis.risk_assessment.score }}/{{ analysis.risk_assessment.max_score }}
+
+                    </div>
+
+                </div>
+
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th>Image Width</th>
+                        <td>{{ analysis.image_size[0] }} px</td>
+                    </tr>
+
+                    <tr>
+                        <th>Image Height</th>
+                        <td>{{ analysis.image_size[1] }} px</td>
+                    </tr>
+
+                    <tr>
+                        <th>Asymmetry Score</th>
+                        <td>{{ "%.2f"|format(analysis.asymmetry_score) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Color Variation</th>
+                        <td>{{ "%.2f"|format(analysis.color_variation) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Border Irregularity</th>
+                        <td>{{ "%.2f"|format(analysis.border_irregularity) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Average RGB</th>
+                        <td>
+
+                            R :
+                            {{ "%.0f"|format(analysis.avg_color[0]) }}
+
+                            |
+
+                            G :
+                            {{ "%.0f"|format(analysis.avg_color[1]) }}
+
+                            |
+
+                            B :
+                            {{ "%.0f"|format(analysis.avg_color[2]) }}
+
+                        </td>
+                    </tr>
+
+                </table>
+
+                <h5 class="mt-4">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Risk Factors
+                </h5>
+
+                {% if analysis.risk_assessment.factors %}
+
+                <ul class="list-group mb-3">
+
+                    {% for factor in analysis.risk_assessment.factors %}
+
+                    <li class="list-group-item">
+                        {{ factor }}
+                    </li>
+
+                    {% endfor %}
+
+                </ul>
+
+                {% else %}
+
+                <div class="alert alert-success">
+
+                    No major risk factors detected.
+
+                </div>
+
+                {% endif %}
+
+                <div class="alert alert-{{ analysis.risk_assessment.color_class }}">
+
+                    <strong>Recommendation :</strong>
+
+                    <br>
+
+                    {{ analysis.risk_assessment.recommendation }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card mb-4">
+
+            <div class="card-header bg-secondary text-white">
+
+                <h5>
+                    <i class="fas fa-sticky-note"></i>
+                    Personal Notes
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <form
+                    action="{{ url_for('update_notes', report_id=report.id) }}"
+                    method="POST">
+
+                    <textarea
+                        class="form-control"
+                        rows="4"
+                        name="notes">{{ report.notes or "" }}</textarea>
+
+                    <button
+                        class="btn btn-success mt-3">
+
+                        Save Notes
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-between">
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="btn btn-primary">
+
+                <i class="fas fa-arrow-left"></i>
+
+                Dashboard
+
+            </a>
+
+            <form
+                action="{{ url_for('delete_report', report_id=report.id) }}"
+                method="POST"
+                onsubmit="return confirm('Delete this report?')">
+
+                <button
+                    class="btn btn-danger">
+
+                    <i class="fas fa-trash"></i>
+
+                    Delete Report
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="alert alert-warning mt-4">
+
+            <h5>
+
+                <i class="fas fa-exclamation-triangle"></i>
+
+                Medical Disclaimer
+
+            </h5>
+
+            This report is generated using image processing techniques for educational purposes only.
+            It is <strong>NOT</strong> a medical diagnosis.
+            Always consult a certified dermatologist for proper evaluation.
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

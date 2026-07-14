@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+.venv/
+venv/
+
+# Database
+instance/
+*.db
+
+# Uploaded Images
+static/uploads/
+
+# TensorFlow Model
+model/*.keras
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
